@@ -24,9 +24,26 @@ provider:
   runtime: python3.7
   region: ap-northeast-1
 
+  environment:
+    S3_BUCKET_NAME: iukeyselftestbucket
+    PUT_S3_ROLE: PutS3ForUploadServiceBucket
+
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
+
+  logRetentionInDays: 30
+
+  deploymentBucket:
+    name: iukey-serverless-deployment
+  
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+        - "sts:AssumeRole"
+      Resource: "*"
+    
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -58,8 +75,15 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  createPresignedUrl:
+    handler: handler.createPresignedUrl
+    environment:
+        LOG_LEVEL: "INFO"
+    events:
+      - http:
+          path: get-presigned-url
+          method: GET
+        
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -111,3 +135,50 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+resources:
+  Resources:
+    TestS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_NAME}
+    RoleForPutObject:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ${self:provider.environment.PUT_S3_ROLE}
+        Path: /UploadService/
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+                AWS:
+                  - Ref: "AWS::AccountId"
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: PutS3ForUploadServiceBucket
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:putObject
+                  Resource: 
+                    Fn::Join:
+                      - ''
+                      - 
+                        - 'arn:aws:s3:::'
+                        - Ref: 'TestS3Bucket'
+                        - '/*'
+
+plugins:
+  - serverless-python-requirements
+  - serverless-prune-plugin
+custom:
+  pythonRequirements:
+    usePipenv: true
+  prune:
+    automatic: true
+    number: 3
