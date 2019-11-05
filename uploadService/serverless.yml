@@ -83,6 +83,11 @@ functions:
       - http:
           path: get-presigned-url
           method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+
         
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -142,6 +147,37 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.S3_BUCKET_NAME}
+        AccessControl: PublicRead
+        CorsConfiguration:
+          CorsRules:
+          - AllowedMethods:
+            - GET
+            - PUT
+            AllowedOrigins:
+              - '*'
+            AllowedHeaders:
+              - '*'
+    BucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        PolicyDocument:
+          Id: PublicAccess
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 
+                Fn::Join:
+                  - ''
+                  -   
+                    - 'arn:aws:s3:::'
+                    - Ref: 'TestS3Bucket'
+                    - '/*'
+        Bucket: 
+          Ref: TestS3Bucket
+
     RoleForPutObject:
       Type: AWS::IAM::Role
       Properties:

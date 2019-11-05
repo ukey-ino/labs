@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-content>
+                <v-container>
+                    <v-alert v-model="alert.isEnable" close-text="Close Alert" color="deep-purple accent-4"
+                        class="mx-auto" max-width="360" dark dismissible>
+                        {{alert.text}}
+                    </v-alert>
+                    <v-card class="mx-auto" max-width="360">
+                        <v-card-title>File Upload Sample</v-card-title>
+                        <v-card-text>
+                                <v-text-field
+                                v-model="baseUrl"
+                                label="baseUrl"
+                                single-line
+                              ></v-text-field>
+                            <v-file-input v-model="uploadFile">
+                                <template v-slot:selection="{ text }">
+                                    <v-chip small label color="secondary">
+                                        {{ text }}
+                                    </v-chip>
+                                </template>
+                            </v-file-input>
+                            <v-btn small color="primary" @click="upload">Upload</v-btn>
+                            <div v-if="uploadedInfo.visible">
+                                <v-btn :href="uploadedInfo.url" small>CHECK S3 FILE</v-btn>
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-container>
+            </v-content>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+        const v = new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                uploadFile: null,
+                alert: {
+                    isEnable: false,
+                    text: ''
+                },
+                uploadedInfo: {
+                    url: '',
+                    visible: false
+                },
+                baseUrl: null
+            },
+            methods: {
+                displayFile: function () {
+                    if (this.uploadFile) {
+                        console.dir(this.uploadFile)
+                    }
+                    return this.uploadFile ? this.uploadFile.name : '';
+                },
+                upload: function () {
+                    if (!this.uploadFile || !this.baseUrl) {
+                        this.alert = {
+                            isEnable: true,
+                            text: 'Fill input fields.'
+                        }
+                        return;
+                    }
+                    this.alert.isEnable = false;
+                    var file = this.uploadFile;
+                    var reader = new FileReader();
+                    reader.addEventListener('loadend', function (e) {
+                        fetch(v.baseUrl + '/get-presigned-url', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(function (response) {
+                            return response.json()
+                        }).then(function (json) {
+                            v.uploadedInfo.url = json.redirectUrl.substring(0, json.redirectUrl.indexOf('?'));
+                            return fetch(json.redirectUrl, {
+                                method: 'PUT',
+                                body: new Blob([reader.result], { type: file.type })
+                            }).then(function (response) {
+                                v.uploadedInfo.visible = true;
+                            })
+                        })
+                    });
+                    reader.readAsArrayBuffer(this.uploadFile);
+                    return false;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

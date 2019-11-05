@@ -58,8 +58,13 @@ def createPresignedUrl(event, context):
         'redirectUrl' : url
     }
 
+    header = {
+        'Access-Control-Allow-Origin' : responseCors(event['headers']['origin']) # originヘッダがないと死ぬ
+    }
+
     response = {
         'statusCode': 200,
+        'headers': header,
         'body': json.dumps(body)
     }
 
@@ -71,5 +76,8 @@ def createRoleArn(accountId):
 
 def createS3Key(fileName):
     return datetime.now().strftime('%Y-%m-%d') + '/' + fileName
+
+def responseCors(origin):
+    return origin if origin else '*'
 
 
