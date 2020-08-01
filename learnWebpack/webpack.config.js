@@ -1,4 +1,7 @@
 module.exports = {
+  // mode webpackするときの圧縮モード
+  //   development: 
+  mode: "development",
   // entry エントリーポイント
   entry: "./src/index.js",
   output: {
