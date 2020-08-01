@@ -28,6 +28,13 @@ $ vim package.json
 $ yarn run build
 ```
 
+* watch source code
+
+```
+$ vim gulpfile.js
+$ yarn run build
+```
+
 # Reference
 
 https://ics.media/entry/3290/
