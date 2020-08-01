@@ -70,6 +70,13 @@ $ vim webpack.config.js
 $ yarn run start
 ```
 
+* watch changing source code
+
+```
+$ vim package.json
+$ yarn run watch
+```
+
 # Reference
 
 * https://ics.media/entry/12140/
