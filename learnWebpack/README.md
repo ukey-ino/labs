@@ -54,6 +54,13 @@ $ vim package.json
 $ yarn run build
 ```
 
+* configuration
+
+```
+$ vim webpack.config.js
+$ yarn run build
+```
+
 # Reference
 
 * https://ics.media/entry/12140/
