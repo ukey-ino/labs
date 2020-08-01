@@ -61,6 +61,15 @@ $ vim webpack.config.js
 $ yarn run build
 ```
 
+* use dev server
+
+```
+$ yarn add webpack webpack-cli webpack-dev-server --dev
+$ vim package.json
+$ vim webpack.config.js
+$ yarn run start
+```
+
 # Reference
 
 * https://ics.media/entry/12140/
