@@ -44,6 +44,14 @@ You can use dist/main.js as webpacked src/index.js.
 ```
 $ echo "node_modules" >> .gitignore
 $ echo "dist" >> .gitignore
+$ echo "yarn-error.log" >> .gitignore
+```
+
+* define npm scripts
+
+```
+$ vim package.json
+$ yarn run build
 ```
 
 # Reference
