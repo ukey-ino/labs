@@ -1,6 +1,9 @@
 {
   "name": "learn-gulp",
   "version": "1.0.0",
+  "scripts": {
+    "build": "gulp"
+  },
   "main": "index.js",
   "license": "MIT",
   "private": true,

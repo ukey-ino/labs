@@ -15,8 +15,18 @@ $ yarn add gulp gulp-sass --dev
 
 ```
 $ echo "node_modules" >> .gitignore
+$ echo "dist" >> .gitignore
 ```
 
+* started
+
+```
+$ vim gulpfile.js
+$ mkdir css
+$ vim css/style.scss
+$ vim package.json
+$ yarn run build
+```
 
 # Reference
 
